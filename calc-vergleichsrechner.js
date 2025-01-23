@@ -9,8 +9,11 @@ const DOPPELBEPROBUNG_KOSTEN = 500;
 
 const WEEKS_IN_YEAR = 52.1429;
 const WEEKS_IN_SEASON = 180 / 7;
-const CO2_FACTOR = 0.00013;
 const PLASTIC_FACTOR = 1;
+
+// New CO₂ factors (grams per liter)
+const CO2_PLASTIC_PER_LITER = 200;    // 200g CO₂ per liter (plastic)
+const CO2_WATER_PER_LITER = 0.35;     // 0.35g CO₂ per liter (water)
 
 function parseNumber(value) {
   console.log(`Parsing value: ${value}`);
@@ -165,16 +168,25 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   // Environmental calculations
   const literVerbrauchJahr = wasserverbrauchJahrOHNE * 1000;
   const literVerbrauchSaison = wasserverbrauchSaisOHNE * 1000;
-  const co2TonnenJahr = literVerbrauchJahr * CO2_FACTOR;
-  const co2TonnenSaison = literVerbrauchSaison * CO2_FACTOR;
+  
+  // New CO₂ calculations
+  const co2PlasticJahr = literVerbrauchJahr * CO2_PLASTIC_PER_LITER;
+  const co2WaterJahr = literVerbrauchJahr * CO2_WATER_PER_LITER;
+  const co2EinsparungJahr = (co2PlasticJahr - co2WaterJahr) / 1_000_000; // Convert grams to tonnes
+  
+  const co2PlasticSaison = literVerbrauchSaison * CO2_PLASTIC_PER_LITER;
+  const co2WaterSaison = literVerbrauchSaison * CO2_WATER_PER_LITER;
+  const co2EinsparungSaison = (co2PlasticSaison - co2WaterSaison) / 1_000_000;
+
+  // Plastic savings
   const plasticSavedSaison = literVerbrauchSaison * PLASTIC_FACTOR;
   const plasticSavedJahr = literVerbrauchJahr * PLASTIC_FACTOR;
 
   console.log("Environmental impact:", {
     literVerbrauchJahr,
     literVerbrauchSaison,
-    co2TonnenJahr,
-    co2TonnenSaison,
+    co2EinsparungJahr,
+    co2EinsparungSaison,
     plasticSavedSaison,
     plasticSavedJahr
   });
@@ -184,9 +196,9 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   document.getElementById('saison-gesamt-price').textContent = formatMoney(gesamtSaisonal);
   document.getElementById('full-year-gesamt-price').textContent = formatMoney(gesamtJahr);
   
-  // CO2 displays
-  document.getElementById('saison-tonnen-c02').textContent = `${formatNumber(co2TonnenSaison)} Tonnen C02`;
-  document.getElementById('full-tonnen-c02').textContent = `${formatNumber(co2TonnenJahr)} Tonnen C02`;
+  // CO₂ displays
+  document.getElementById('saison-tonnen-c02').textContent = `${formatNumber(co2EinsparungSaison)} Tonnen C02`;
+  document.getElementById('full-tonnen-c02').textContent = `${formatNumber(co2EinsparungJahr)} Tonnen C02`;
   
   // Plastic bottle displays
   document.getElementById('plastic-bootles-saison').textContent = formatNumber(plasticSavedSaison);
@@ -212,10 +224,10 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
       saisonSliderId: 'saison-gesamt-price-range', 
       fullYearSliderId: 'full-year-gesamt-price-range' 
     },
-    // CO2 sliders
+    // CO₂ sliders
     { 
-      saison: co2TonnenSaison, 
-      fullYear: co2TonnenJahr, 
+      saison: co2EinsparungSaison, 
+      fullYear: co2EinsparungJahr, 
       saisonSliderId: 'saison-tonnen-c02-range', 
       fullYearSliderId: 'full-tonnen-c02-range' 
     },
