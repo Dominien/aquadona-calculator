@@ -32,11 +32,28 @@ function formatMoney(val) {
   }) + ' €';
 }
 
-function formatNumber(val, fraction = 3) {
+function formatNumber(val) {
+  // If the value is a whole number, set fraction digits to 0
+  if (val === Math.floor(val)) {
+    return val.toLocaleString('de-DE', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    });
+  } else {
+    // Otherwise, limit to one decimal place
+    return val.toLocaleString('de-DE', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
+    });
+  }
+}
+
+function formatPlasticBottles(val) {
+  // Remove any decimal places and format without commas
   return val.toLocaleString('de-DE', {
-    minimumFractionDigits: fraction,
-    maximumFractionDigits: fraction
-  });
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).replace(/\./g, ''); // Remove thousand separators for plastic bottles
 }
 
 // ---------------------------------------------------------
@@ -201,8 +218,8 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   document.getElementById('full-tonnen-c02').textContent = `${formatNumber(co2EinsparungJahr)} Tonnen C02`;
   
   // Plastic bottle displays
-  document.getElementById('plastic-bootles-saison').textContent = formatNumber(plasticSavedSaison);
-  document.getElementById('plastic-bootles-gesamt').textContent = formatNumber(plasticSavedJahr);
+  document.getElementById('plastic-bootles-saison').textContent = formatPlasticBottles(plasticSavedSaison);
+  document.getElementById('plastic-bootles-gesamt').textContent = formatPlasticBottles(plasticSavedJahr);
   
   // Water consumption displays
   document.getElementById('liter-verbrauch-saison').textContent = formatNumber(literVerbrauchSaison);
