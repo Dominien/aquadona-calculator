@@ -160,23 +160,82 @@
 
     const plasticSaved = (literVerbrauchJahr + literVerbrauchSaison) * PLASTIC_FACTOR;
 
-    // ---------------------------------------------
     // j) Write results to DOM
-    // ---------------------------------------------
-    document.getElementById('saison-gesamt-price').textContent    = formatMoney(gesamtSaisonal);
+    document.getElementById('saison-gesamt-price').textContent = formatMoney(gesamtSaisonal);
     document.getElementById('full-year-gesamt-price').textContent = formatMoney(gesamtJahr);
 
     document.getElementById('saison-tonnen-c02').textContent = formatNumber(co2TonnenSaison) + ' Tonnen C02';
-    document.getElementById('full-tonnen-c02').textContent   = formatNumber(co2TonnenJahr)   + ' Tonnen C02';
+    document.getElementById('full-tonnen-c02').textContent = formatNumber(co2TonnenJahr) + ' Tonnen C02';
 
     document.getElementById('plastic-bootles').textContent = formatNumber(plasticSaved);
 
     document.getElementById('liter-verbrauch-saison').textContent = formatNumber(literVerbrauchSaison);
-    document.getElementById('liter-verbrauch-full').textContent   = formatNumber(literVerbrauchJahr);
+    document.getElementById('liter-verbrauch-full').textContent = formatNumber(literVerbrauchJahr);
 
     document.getElementById('m3-verbrauch-saison').textContent = formatNumber(wasserverbrauchSaisonGES);
-    document.getElementById('m3-verbrauch-full').textContent   = formatNumber(wasserverbrauchJahrGES);
+    document.getElementById('m3-verbrauch-full').textContent = formatNumber(wasserverbrauchJahrGES);
 
     document.getElementById('m3-spuelung-saison').textContent = formatNumber(SPUELUNG_SAISONAL_M3);
     document.getElementById('m3-spuelung-gesamt').textContent = formatNumber(SPUELUNG_JAEHRLICH_M3);
-  });
+
+// ---------------------------------------------------------
+// k) Update range sliders for all result pairs
+// ---------------------------------------------------------
+const sliderPairs = [
+  {
+    saison: gesamtSaisonal,
+    fullYear: gesamtJahr,
+    saisonSliderId: 'saison-gesamt-price-range',
+    fullYearSliderId: 'full-year-gesamt-price-range'
+  },
+  {
+    saison: co2TonnenSaison,
+    fullYear: co2TonnenJahr,
+    saisonSliderId: 'saison-tonnen-c02-range',
+    fullYearSliderId: 'full-tonnen-c02-range'
+  },
+  {
+    saison: literVerbrauchSaison,
+    fullYear: literVerbrauchJahr,
+    saisonSliderId: 'liter-verbrauch-saison-range',
+    fullYearSliderId: 'liter-verbrauch-full-range'
+  },
+  {
+    saison: wasserverbrauchSaisonGES,
+    fullYear: wasserverbrauchJahrGES,
+    saisonSliderId: 'm3-verbrauch-full-range',
+    fullYearSliderId: 'm3-verbrauch-full-range'
+  },
+  {
+    saison: SPUELUNG_SAISONAL_M3,
+    fullYear: SPUELUNG_JAEHRLICH_M3,
+    saisonSliderId: 'm3-spuelung-saison-range',
+    fullYearSliderId: 'm3-spuelung-gesamt-range'
+  }
+];
+
+sliderPairs.forEach(pair => {
+  const max = Math.max(pair.saison, pair.fullYear, 1); // Avoid division by zero
+  const saisonPercentage = (pair.saison / max) * 100;
+  const fullYearPercentage = (pair.fullYear / max) * 100;
+
+  const saisonSlider = document.getElementById(pair.saisonSliderId);
+  const fullYearSlider = document.getElementById(pair.fullYearSliderId);
+
+  if (saisonSlider) {
+    saisonSlider.style.width = `${saisonPercentage}%`;
+  }
+  if (fullYearSlider) {
+    fullYearSlider.style.width = `${fullYearPercentage}%`;
+  }
+});
+
+// Handle Plastikflaschen slider separately
+const plasticSlider = document.getElementById('plastic-bootles-range');
+if (plasticSlider) {
+  const max = Math.max(plasticSaved, 1);
+  const percentage = (plasticSaved / max) * 100;
+  plasticSlider.style.width = `${percentage}%`;
+}
+
+});
