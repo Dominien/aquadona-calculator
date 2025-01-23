@@ -121,8 +121,11 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     betaetigungenSaisons
   });
 
+  // Wasser calculations (OHNE = without flushing)
   const wasserverbrauchJahrOHNE = (betaetigungenJahr * inputs.mlProBetaetigung) / 1_000_000;
   const wasserverbrauchSaisOHNE = (betaetigungenSaisons * inputs.mlProBetaetigung) / 1_000_000;
+  
+  // GES calculations still needed for costs
   const wasserverbrauchJahrGES = wasserverbrauchJahrOHNE + SPUELUNG_JAEHRLICH_M3;
   const wasserverbrauchSaisonGES = wasserverbrauchSaisOHNE + SPUELUNG_SAISONAL_M3;
 
@@ -159,8 +162,9 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   const gesamtSaisonal = beprobungSaisonal + wasserKostenSaisonal + HYGIENE_REINIGUNG_KOSTEN + DOPPELBEPROBUNG_KOSTEN;
   console.log("Total costs:", { gesamtJahr, gesamtSaisonal });
 
-  const literVerbrauchJahr = wasserverbrauchJahrGES * 1000;
-  const literVerbrauchSaison = wasserverbrauchSaisonGES * 1000;
+  // Modified: Use OHNE values for liter calculations
+  const literVerbrauchJahr = wasserverbrauchJahrOHNE * 1000;
+  const literVerbrauchSaison = wasserverbrauchSaisOHNE * 1000;
   const co2TonnenJahr = literVerbrauchJahr * CO2_FACTOR;
   const co2TonnenSaison = literVerbrauchSaison * CO2_FACTOR;
   const plasticSaved = (literVerbrauchJahr + literVerbrauchSaison) * PLASTIC_FACTOR;
@@ -180,10 +184,13 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   document.getElementById('saison-tonnen-c02').textContent = `${formatNumber(co2TonnenSaison)} Tonnen C02`;
   document.getElementById('full-tonnen-c02').textContent = `${formatNumber(co2TonnenJahr)} Tonnen C02`;
   document.getElementById('plastic-bootles').textContent = formatNumber(plasticSaved);
+  
+  // Modified: Show OHNE values for liter/m³ displays
   document.getElementById('liter-verbrauch-saison').textContent = formatNumber(literVerbrauchSaison);
   document.getElementById('liter-verbrauch-full').textContent = formatNumber(literVerbrauchJahr);
-  document.getElementById('m3-verbrauch-saison').textContent = formatNumber(wasserverbrauchSaisonGES);
-  document.getElementById('m3-verbrauch-full').textContent = formatNumber(wasserverbrauchJahrGES);
+  document.getElementById('m3-verbrauch-saison').textContent = formatNumber(wasserverbrauchSaisOHNE);
+  document.getElementById('m3-verbrauch-full').textContent = formatNumber(wasserverbrauchJahrOHNE);
+  
   document.getElementById('m3-spuelung-saison').textContent = formatNumber(SPUELUNG_SAISONAL_M3);
   document.getElementById('m3-spuelung-gesamt').textContent = formatNumber(SPUELUNG_JAEHRLICH_M3);
 
@@ -193,7 +200,8 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     { saison: gesamtSaisonal, fullYear: gesamtJahr, saisonSliderId: 'saison-gesamt-price-range', fullYearSliderId: 'full-year-gesamt-price-range' },
     { saison: co2TonnenSaison, fullYear: co2TonnenJahr, saisonSliderId: 'saison-tonnen-c02-range', fullYearSliderId: 'full-tonnen-c02-range' },
     { saison: literVerbrauchSaison, fullYear: literVerbrauchJahr, saisonSliderId: 'liter-verbrauch-saison-range', fullYearSliderId: 'liter-verbrauch-full-range' },
-    { saison: wasserverbrauchSaisonGES, fullYear: wasserverbrauchJahrGES, saisonSliderId: 'm3-verbrauch-full-range', fullYearSliderId: 'm3-verbrauch-full-range' },
+    // Modified: Use OHNE values for water consumption sliders
+    { saison: wasserverbrauchSaisOHNE, fullYear: wasserverbrauchJahrOHNE, saisonSliderId: 'm3-verbrauch-full-range', fullYearSliderId: 'm3-verbrauch-full-range' },
     { saison: SPUELUNG_SAISONAL_M3, fullYear: SPUELUNG_JAEHRLICH_M3, saisonSliderId: 'm3-spuelung-saison-range', fullYearSliderId: 'm3-spuelung-gesamt-range' }
   ];
 
