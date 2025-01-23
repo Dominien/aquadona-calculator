@@ -230,8 +230,8 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     { 
       saison: wasserverbrauchSaisOHNE, 
       fullYear: wasserverbrauchJahrOHNE, 
-      saisonSliderId: 'm3-verbrauch-full-range', 
-      fullYearSliderId: 'm3-verbrauch-full-range' 
+      saisonSliderId: 'm3-verbrauch-full-range-saison', 
+      fullYearSliderId: 'm3-verbrauch-full-range-gesamt' 
     },
     // Spülung sliders
     { 
