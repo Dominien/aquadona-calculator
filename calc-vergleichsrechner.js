@@ -299,3 +299,140 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
 
   console.log("--- Calculation complete ---\n");
 });
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const rangeSliderWrapperClass = "wrapper-step-range_slider"; // Class for the slider wrapper
+    const inputId = "benutzung-prozent"; // ID of the input field
+
+    // Function to update the range slider position based on the input value
+    function updateRangeSliderPosition(value, withTransition) {
+        const wrapper = document.querySelector(`.${rangeSliderWrapperClass}`);
+        const handle = wrapper.querySelector(".range-slider_handle");
+        const fill = wrapper.querySelector(".range-slider_fill");
+
+        const min = parseFloat(wrapper.getAttribute("fs-rangeslider-min"));
+        const max = parseFloat(wrapper.getAttribute("fs-rangeslider-max"));
+
+        const percentage = ((value - min) / (max - min)) * 100;
+
+        if (withTransition) {
+            handle.style.transition = "left 0.3s ease";
+            fill.style.transition = "width 0.3s ease";
+        } else {
+            handle.style.transition = "none";
+            fill.style.transition = "none";
+        }
+
+        handle.style.left = `${Math.min(Math.max(percentage, 0), 100)}%`;
+        fill.style.width = `${Math.min(Math.max(percentage, 0), 100)}%`;
+    }
+
+    // Function to set the input value based on the slider handle text
+    function setInputValue() {
+        const handleText = document.querySelector(`.${rangeSliderWrapperClass} .inside-handle-text`).textContent;
+        document.getElementById(inputId).value = handleText;
+    }
+
+    // Function to set the slider handle text based on the input value
+    function setHandleText() {
+        const inputValue = document.getElementById(inputId).value;
+        const handleText = document.querySelector(`.${rangeSliderWrapperClass} .inside-handle-text`);
+        handleText.textContent = inputValue;
+        updateRangeSliderPosition(inputValue, true);
+    }
+
+    // Function to add event listeners for handle movement
+    function addHandleMovementListener() {
+        const handle = document.querySelector(`.${rangeSliderWrapperClass} .range-slider_handle`);
+        const slider = document.querySelector(`.${rangeSliderWrapperClass} .track-range-slider`);
+
+        handle.addEventListener("mousedown", function () {
+            updateRangeSliderPosition(document.getElementById(inputId).value, false);
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
+        });
+
+        handle.addEventListener("touchstart", function () {
+            updateRangeSliderPosition(document.getElementById(inputId).value, false);
+            document.addEventListener("touchmove", onTouchMove);
+            document.addEventListener("touchend", onTouchEnd);
+        });
+
+        slider.addEventListener("click", function (event) {
+            const rect = slider.getBoundingClientRect();
+            const offsetX = event.clientX - rect.left;
+            const percentage = (offsetX / slider.clientWidth) * 100;
+            const wrapper = document.querySelector(`.${rangeSliderWrapperClass}`);
+            const min = parseFloat(wrapper.getAttribute("fs-rangeslider-min"));
+            const max = parseFloat(wrapper.getAttribute("fs-rangeslider-max"));
+            const value = Math.round(min + (percentage / 100) * (max - min));
+
+            document.getElementById(inputId).value = value;
+            setHandleText();
+        });
+
+        function onMouseMove() {
+            setInputValue();
+        }
+
+        function onMouseUp() {
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+        }
+
+        function onTouchMove() {
+            setInputValue();
+        }
+
+        function onTouchEnd() {
+            document.removeEventListener("touchmove", onTouchMove);
+            document.removeEventListener("touchend", onTouchEnd);
+        }
+    }
+
+    // Function to add event listener for input field changes
+    function addInputFieldListener() {
+        const inputField = document.getElementById(inputId);
+        inputField.addEventListener("input", function () {
+            if (inputField.value.length > 3) {
+                inputField.value = inputField.value.slice(0, 3);
+            }
+            setHandleText();
+            setTimeout(() => {
+                const handle = document.querySelector(`.${rangeSliderWrapperClass} .range-slider_handle`);
+                const fill = document.querySelector(`.${rangeSliderWrapperClass} .range-slider_fill`);
+                handle.style.transition = "none";
+                fill.style.transition = "none";
+            }, 300);
+        });
+    }
+
+    // Function to observe changes to the handle text and input field value
+    function observeChanges() {
+        const handleTextElement = document.querySelector(`.${rangeSliderWrapperClass} .inside-handle-text`);
+        const inputElement = document.getElementById(inputId);
+
+        const observer = new MutationObserver(() => {
+            if (inputElement.value !== handleTextElement.textContent) {
+                inputElement.value = handleTextElement.textContent;
+            }
+        });
+
+        observer.observe(handleTextElement, { childList: true, subtree: true });
+
+        inputElement.addEventListener("input", () => {
+            if (inputElement.value !== handleTextElement.textContent) {
+                handleTextElement.textContent = inputElement.value;
+                updateRangeSliderPosition(inputElement.value, true);
+            }
+        });
+    }
+
+    // Initialize the slider and input field
+    setInputValue(); // Set initial value
+    addHandleMovementListener(); // Add handle movement listeners
+    addInputFieldListener(); // Add input field listener
+    observeChanges(); // Observe changes to keep input and handle in sync
+});
