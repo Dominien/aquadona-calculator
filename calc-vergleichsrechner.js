@@ -290,6 +290,18 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     const saisonSlider = document.getElementById(pair.saisonSliderId);
     const fullYearSlider = document.getElementById(pair.fullYearSliderId);
 
+    if (saisonSlider) {
+      saisonSlider.style.transition = 'width 0.8s ease-in-out'; // Add transition
+      void saisonSlider.offsetWidth; // Trigger reflow to reset animation
+      saisonSlider.style.width = `${saisonPercentage}%`;
+    }  
+
+    if (fullYearSlider) {
+      fullYearSlider.style.transition = 'width 0.8s ease-in-out';
+      void fullYearSlider.offsetWidth;
+      fullYearSlider.style.width = `${fullYearPercentage}%`;
+    }
+
     if (!saisonSlider) console.error(`Slider not found: ${pair.saisonSliderId}`);
     if (!fullYearSlider) console.error(`Slider not found: ${pair.fullYearSliderId}`);
 
