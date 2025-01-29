@@ -214,8 +214,8 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   document.getElementById('full-year-gesamt-price').textContent = formatMoney(gesamtJahr);
   
   // CO₂ displays
-  document.getElementById('saison-tonnen-c02').textContent = `${formatNumber(co2EinsparungSaison)} Tonnen C02`;
-  document.getElementById('full-tonnen-c02').textContent = `${formatNumber(co2EinsparungJahr)} Tonnen C02`;
+  document.getElementById('saison-tonnen-c02').textContent = `${formatNumber(co2EinsparungSaison)} Tonnen CO₂`;
+  document.getElementById('full-tonnen-c02').textContent = `${formatNumber(co2EinsparungJahr)} Tonnen CO₂`;
   
   // Plastic bottle displays
   document.getElementById('plastic-bootles-saison').textContent = formatPlasticBottles(plasticSavedSaison);
