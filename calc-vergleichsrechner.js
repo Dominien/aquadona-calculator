@@ -7,8 +7,10 @@ const SPUELUNG_JAEHRLICH_M3 = 6.5;
 const HYGIENE_REINIGUNG_KOSTEN = 1000;
 const DOPPELBEPROBUNG_KOSTEN = 500;
 
-const WEEKS_IN_YEAR = 52.1429;
-const WEEKS_IN_SEASON = 180 / 7;
+// No longer needed if you removed intervals completely
+// const WEEKS_IN_YEAR = 52.1429;
+// const WEEKS_IN_SEASON = 180 / 7;
+
 const PLASTIC_FACTOR = 1;
 
 // New CO₂ factors (grams per liter)
@@ -92,9 +94,13 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   // Validate required fields
   console.log("Validating required fields...");
   const requiredFields = [
-    'menschen-gesamt', 'benutzung-prozent', 'ml-pro-betaetigung',
-    'trinkwasserpreis', 'entsorgung-preis', 'beprobung-kosten-gesamt',
-    'beprobung-kosten-saisonal', 'beprobung-times-ganz', 'beprobung-times-saisonal'
+    'menschen-gesamt',
+    'benutzung-prozent',
+    'ml-pro-betaetigung',
+    'trinkwasserpreis',
+    'entsorgung-preis',
+    'beprobung-kosten-gesamt',
+    'beprobung-kosten-saisonal'
   ];
 
   const missingFields = requiredFields.filter(id => {
@@ -119,9 +125,7 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     trinkwasserpreis: parseNumber(document.getElementById('trinkwasserpreis').value),
     entsorgungPreis: parseNumber(document.getElementById('entsorgung-preis').value),
     beprobungKostenJaehrlich: parseNumber(document.getElementById('beprobung-kosten-gesamt').value),
-    beprobungKostenSaisonal: parseNumber(document.getElementById('beprobung-kosten-saisonal').value),
-    beprobungTimesJaehrlich: parseNumber(document.getElementById('beprobung-times-ganz').value),
-    beprobungTimesSaisonal: parseNumber(document.getElementById('beprobung-times-saisonal').value)
+    beprobungKostenSaisonal: parseNumber(document.getElementById('beprobung-kosten-saisonal').value)
   };
   console.log("Parsed inputs:", inputs);
 
@@ -145,7 +149,7 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   const wasserverbrauchJahrOHNE = (betaetigungenJahr * inputs.mlProBetaetigung) / 1_000_000;
   const wasserverbrauchSaisOHNE = (betaetigungenSaisons * inputs.mlProBetaetigung) / 1_000_000;
   
-  // GES calculations still needed for costs
+  // GES calculations (water usage + flushing)
   const wasserverbrauchJahrGES = wasserverbrauchJahrOHNE + SPUELUNG_JAEHRLICH_M3;
   const wasserverbrauchSaisonGES = wasserverbrauchSaisOHNE + SPUELUNG_SAISONAL_M3;
 
@@ -166,18 +170,18 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     wasserKostenSaisonal
   });
 
-  const anzahlBeprobungenJahr = WEEKS_IN_YEAR / inputs.beprobungTimesJaehrlich;
-  const anzahlBeprobungenSais = WEEKS_IN_SEASON / inputs.beprobungTimesSaisonal;
-  const beprobungJahr = anzahlBeprobungenJahr * inputs.beprobungKostenJaehrlich;
-  const beprobungSaisonal = anzahlBeprobungenSais * inputs.beprobungKostenSaisonal;
+  // Sampling costs:
+  //  * multiply yearly cost by 13
+  //  * multiply seasonal cost by 7
+  const beprobungJahr = inputs.beprobungKostenJaehrlich * 13;
+  const beprobungSaisonal = inputs.beprobungKostenSaisonal * 7;
 
   console.log("Sampling costs:", {
-    anzahlBeprobungenJahr,
-    anzahlBeprobungenSais,
     beprobungJahr,
     beprobungSaisonal
   });
 
+  // Total costs
   const gesamtJahr = beprobungJahr + wasserKostenJahr;
   const gesamtSaisonal = beprobungSaisonal + wasserKostenSaisonal + HYGIENE_REINIGUNG_KOSTEN + DOPPELBEPROBUNG_KOSTEN;
   console.log("Total costs:", { gesamtJahr, gesamtSaisonal });
@@ -186,10 +190,9 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   const literVerbrauchJahr = wasserverbrauchJahrOHNE * 1000;
   const literVerbrauchSaison = wasserverbrauchSaisOHNE * 1000;
   
-  // New CO₂ calculations
   const co2PlasticJahr = literVerbrauchJahr * CO2_PLASTIC_PER_LITER;
   const co2WaterJahr = literVerbrauchJahr * CO2_WATER_PER_LITER;
-  const co2EinsparungJahr = (co2PlasticJahr - co2WaterJahr) / 1_000_000; // Convert grams to tonnes
+  const co2EinsparungJahr = (co2PlasticJahr - co2WaterJahr) / 1_000_000; // grams to tonnes
   
   const co2PlasticSaison = literVerbrauchSaison * CO2_PLASTIC_PER_LITER;
   const co2WaterSaison = literVerbrauchSaison * CO2_WATER_PER_LITER;
@@ -208,30 +211,36 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     plasticSavedJahr
   });
 
-  // Update DOM
+  // ---------------------------------------------------------
+  // Update DOM with results
+  // ---------------------------------------------------------
   console.log("\nUpdating DOM elements...");
+  
+  // 1) Costs
   document.getElementById('saison-gesamt-price').textContent = formatMoney(gesamtSaisonal);
   document.getElementById('full-year-gesamt-price').textContent = formatMoney(gesamtJahr);
   
-  // CO₂ displays
+  // 2) CO₂
   document.getElementById('saison-tonnen-c02').textContent = `${formatNumber(co2EinsparungSaison)} Tonnen CO₂`;
   document.getElementById('full-tonnen-c02').textContent = `${formatNumber(co2EinsparungJahr)} Tonnen CO₂`;
   
-  // Plastic bottle displays
+  // 3) Plastic bottles
   document.getElementById('plastic-bootles-saison').textContent = formatPlasticBottles(plasticSavedSaison);
   document.getElementById('plastic-bootles-gesamt').textContent = formatPlasticBottles(plasticSavedJahr);
   
-  // Water consumption displays
+  // 4) Water consumption
   document.getElementById('liter-verbrauch-saison').textContent = formatNumber(literVerbrauchSaison);
   document.getElementById('liter-verbrauch-full').textContent = formatNumber(literVerbrauchJahr);
   document.getElementById('m3-verbrauch-saison').textContent = formatNumber(wasserverbrauchSaisOHNE);
   document.getElementById('m3-verbrauch-full').textContent = formatNumber(wasserverbrauchJahrOHNE);
   
-  // Spülung displays
+  // 5) Additional flushing consumption
   document.getElementById('m3-spuelung-saison').textContent = formatNumber(SPUELUNG_SAISONAL_M3);
   document.getElementById('m3-spuelung-gesamt').textContent = formatNumber(SPUELUNG_JAEHRLICH_M3);
 
-  // Update sliders
+  // ---------------------------------------------------------
+  // Update sliders (visual bars) for comparison
+  // ---------------------------------------------------------
   console.log("\nUpdating sliders...");
   const sliderPairs = [
     // Cost sliders
@@ -291,8 +300,8 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     const fullYearSlider = document.getElementById(pair.fullYearSliderId);
 
     if (saisonSlider) {
-      saisonSlider.style.transition = 'width 0.8s ease-in-out'; // Add transition
-      void saisonSlider.offsetWidth; // Trigger reflow to reset animation
+      saisonSlider.style.transition = 'width 0.8s ease-in-out'; // smooth animation
+      void saisonSlider.offsetWidth; // reflow to reset
       saisonSlider.style.width = `${saisonPercentage}%`;
     }  
 
@@ -304,16 +313,15 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
 
     if (!saisonSlider) console.error(`Slider not found: ${pair.saisonSliderId}`);
     if (!fullYearSlider) console.error(`Slider not found: ${pair.fullYearSliderId}`);
-
-    if (saisonSlider) saisonSlider.style.width = `${saisonPercentage}%`;
-    if (fullYearSlider) fullYearSlider.style.width = `${fullYearPercentage}%`;
   });
 
   console.log("--- Calculation complete ---\n");
 });
 
 
-
+// ---------------------------------------------------------
+// 4) Slider functionality (unchanged)
+// ---------------------------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
     const rangeSliderWrapperClass = "wrapper-step-range_slider"; // Class for the slider wrapper
     const inputId = "benutzung-prozent"; // ID of the input field
