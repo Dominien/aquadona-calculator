@@ -7,10 +7,6 @@ const SPUELUNG_JAEHRLICH_M3 = 6.5;
 const HYGIENE_REINIGUNG_KOSTEN = 1000;
 const DOPPELBEPROBUNG_KOSTEN = 500;
 
-// No longer needed if you removed intervals completely
-// const WEEKS_IN_YEAR = 52.1429;
-// const WEEKS_IN_SEASON = 180 / 7;
-
 const PLASTIC_FACTOR = 1;
 
 // New CO₂ factors (grams per liter)
@@ -174,7 +170,7 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   //  * multiply yearly cost by 13
   //  * multiply seasonal cost by 7
   const beprobungJahr = inputs.beprobungKostenJaehrlich * 13;
-  const beprobungSaisonal = inputs.beprobungKostenSaisonal * 7;
+  const beprobungSaisonal = inputs.beprobungKostenSaisonal * 6.5;
 
   console.log("Sampling costs:", {
     beprobungJahr,
