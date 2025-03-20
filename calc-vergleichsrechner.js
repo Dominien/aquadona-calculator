@@ -11,6 +11,8 @@ const DOPPELBEPROBUNG_KOSTEN = 500;
 const DEFAULT_WATER_CONSUMPTION_ML = 300;
 const DEFAULT_WATER_PRICE = 2.13;
 const DEFAULT_WASTEWATER_PRICE = 2.41;
+const DEFAULT_POPULATION = 40000;
+const DEFAULT_USAGE_PERCENT = 7;
 
 const PLASTIC_FACTOR = 1;
 
@@ -351,6 +353,32 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('ml-pro-betaetigung').value = DEFAULT_WATER_CONSUMPTION_ML;
     document.getElementById('trinkwasserpreis').value = DEFAULT_WATER_PRICE;
     document.getElementById('entsorgung-preis').value = DEFAULT_WASTEWATER_PRICE;
+    document.getElementById('menschen-gesamt').value = DEFAULT_POPULATION.toLocaleString('de-DE');
+    
+    // Set default range slider value
+    const rangeHandle = document.querySelector('[fs-rangeslider-element="handle"]');
+    const rangeDisplayValue = document.querySelector('[fs-rangeslider-element="display-value"]');
+    const rangeFill = document.querySelector('[fs-rangeslider-element="fill-2"]');
+    
+    if (rangeHandle && rangeDisplayValue) {
+        // Set the display value
+        rangeDisplayValue.textContent = DEFAULT_USAGE_PERCENT.toString();
+        
+        // Set the input value
+        document.getElementById('benutzung-prozent').value = DEFAULT_USAGE_PERCENT.toString();
+        
+        // Set the handle position
+        const percentage = (DEFAULT_USAGE_PERCENT / sliderMaxValue) * 100;
+        rangeHandle.style.left = `${percentage}%`;
+        
+        // Set the fill width
+        if (rangeFill) {
+            rangeFill.style.width = `${percentage}%`;
+        }
+        
+        // Set the aria value
+        rangeHandle.setAttribute('aria-valuenow', DEFAULT_USAGE_PERCENT.toString());
+    }
     
     // Update slider max value
     const wrapper = document.querySelector(`.${rangeSliderWrapperClass}`);
