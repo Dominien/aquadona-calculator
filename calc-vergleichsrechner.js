@@ -168,17 +168,20 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   });
 
   // Total costs (without sampling costs)
+  // For year-round operation, only water costs apply
   const gesamtJahr = wasserKostenJahr;
-  const gesamtSaisonal = wasserKostenSaisonal + HYGIENE_REINIGUNG_KOSTEN + DOPPELBEPROBUNG_KOSTEN;
   
-  // Add note element to indicate that sampling costs are not included
+  // For seasonal operation, only include water costs (no additional costs)
+  const gesamtSaisonal = wasserKostenSaisonal;
+  
+  // Add note element to explain costs
   const noteElement = document.createElement('div');
   noteElement.className = 'cost-note';
   noteElement.style.color = '#666';
   noteElement.style.fontStyle = 'italic';
   noteElement.style.fontSize = '0.9em';
   noteElement.style.marginTop = '5px';
-  noteElement.textContent = 'Hinweis: Zusätzliche Kosten für die Beprobung fallen weiterhin an und müssen separat berücksichtigt werden.';
+  noteElement.innerHTML = 'Hinweis: Zusätzliche Kosten für die Beprobung, Hygienereinigung und andere betriebsbedingte Aufwendungen fallen weiterhin an und müssen separat berücksichtigt werden.';
   
   // Insert note after price elements
   setTimeout(() => {
