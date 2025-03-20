@@ -7,6 +7,11 @@ const SPUELUNG_JAEHRLICH_M3 = 6.5;
 const HYGIENE_REINIGUNG_KOSTEN = 1000;
 const DOPPELBEPROBUNG_KOSTEN = 500;
 
+// Default values for the calculator
+const DEFAULT_WATER_CONSUMPTION_ML = 300;
+const DEFAULT_WATER_PRICE = 2.13;
+const DEFAULT_WASTEWATER_PRICE = 2.41;
+
 const PLASTIC_FACTOR = 1;
 
 // New CO₂ factors (grams per liter)
@@ -94,9 +99,7 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     'benutzung-prozent',
     'ml-pro-betaetigung',
     'trinkwasserpreis',
-    'entsorgung-preis',
-    'beprobung-kosten-gesamt',
-    'beprobung-kosten-saisonal'
+    'entsorgung-preis'
   ];
 
   const missingFields = requiredFields.filter(id => {
@@ -117,11 +120,9 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   const inputs = {
     menschenGesamt: parseNumber(document.getElementById('menschen-gesamt').value),
     benutzungProzent: parseNumber(document.getElementById('benutzung-prozent').value),
-    mlProBetaetigung: parseNumber(document.getElementById('ml-pro-betaetigung').value),
-    trinkwasserpreis: parseNumber(document.getElementById('trinkwasserpreis').value),
-    entsorgungPreis: parseNumber(document.getElementById('entsorgung-preis').value),
-    beprobungKostenJaehrlich: parseNumber(document.getElementById('beprobung-kosten-gesamt').value),
-    beprobungKostenSaisonal: parseNumber(document.getElementById('beprobung-kosten-saisonal').value)
+    mlProBetaetigung: parseNumber(document.getElementById('ml-pro-betaetigung').value) || DEFAULT_WATER_CONSUMPTION_ML,
+    trinkwasserpreis: parseNumber(document.getElementById('trinkwasserpreis').value) || DEFAULT_WATER_PRICE,
+    entsorgungPreis: parseNumber(document.getElementById('entsorgung-preis').value) || DEFAULT_WASTEWATER_PRICE
   };
   console.log("Parsed inputs:", inputs);
 
@@ -166,20 +167,26 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     wasserKostenSaisonal
   });
 
-  // Sampling costs:
-  //  * multiply yearly cost by 13
-  //  * multiply seasonal cost by 7
-  const beprobungJahr = inputs.beprobungKostenJaehrlich * 13;
-  const beprobungSaisonal = inputs.beprobungKostenSaisonal * 6.5;
-
-  console.log("Sampling costs:", {
-    beprobungJahr,
-    beprobungSaisonal
-  });
-
-  // Total costs
-  const gesamtJahr = beprobungJahr + wasserKostenJahr;
-  const gesamtSaisonal = beprobungSaisonal + wasserKostenSaisonal + HYGIENE_REINIGUNG_KOSTEN + DOPPELBEPROBUNG_KOSTEN;
+  // Total costs (without sampling costs)
+  const gesamtJahr = wasserKostenJahr;
+  const gesamtSaisonal = wasserKostenSaisonal + HYGIENE_REINIGUNG_KOSTEN + DOPPELBEPROBUNG_KOSTEN;
+  
+  // Add note element to indicate that sampling costs are not included
+  const noteElement = document.createElement('div');
+  noteElement.className = 'cost-note';
+  noteElement.style.color = '#666';
+  noteElement.style.fontStyle = 'italic';
+  noteElement.style.fontSize = '0.9em';
+  noteElement.style.marginTop = '5px';
+  noteElement.textContent = 'Hinweis: Zusätzliche Kosten für die Beprobung fallen weiterhin an und müssen separat berücksichtigt werden.';
+  
+  // Insert note after price elements
+  setTimeout(() => {
+    const priceContainer = document.getElementById('full-year-gesamt-price').closest('.inner_grid-calc-ergebnis');
+    if (priceContainer && !document.querySelector('.cost-note')) {
+      priceContainer.appendChild(noteElement);
+    }
+  }, 500);
   console.log("Total costs:", { gesamtJahr, gesamtSaisonal });
 
   // Environmental calculations
@@ -321,6 +328,24 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
 document.addEventListener("DOMContentLoaded", function () {
     const rangeSliderWrapperClass = "wrapper-step-range_slider"; // Class for the slider wrapper
     const inputId = "benutzung-prozent"; // ID of the input field
+    const sliderMaxValue = 100; // Maximum percentage value
+    
+    // Set default values
+    document.getElementById('ml-pro-betaetigung').value = DEFAULT_WATER_CONSUMPTION_ML;
+    document.getElementById('trinkwasserpreis').value = DEFAULT_WATER_PRICE;
+    document.getElementById('entsorgung-preis').value = DEFAULT_WASTEWATER_PRICE;
+    
+    // Update slider max value
+    const wrapper = document.querySelector(`.${rangeSliderWrapperClass}`);
+    if (wrapper) {
+        wrapper.setAttribute("fs-rangeslider-max", sliderMaxValue.toString());
+        
+        // Update the max value display in the UI
+        const maxValueDisplay = document.querySelector('.range-block.right .range-slider-text_below');
+        if (maxValueDisplay) {
+            maxValueDisplay.textContent = sliderMaxValue.toString();
+        }
+    }
 
     // Function to update the range slider position based on the input value
     function updateRangeSliderPosition(value, withTransition) {
