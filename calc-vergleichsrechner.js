@@ -180,15 +180,21 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   setTimeout(() => {
     let hinweisElement = document.querySelector('.hinweis-preis');
     
+    // Always ensure the hinweis element is visible even if it exists
+    if (hinweisElement) {
+      hinweisElement.style.display = 'block';
+    }
+    
     // If the element doesn't exist, create it
     if (!hinweisElement) {
       hinweisElement = document.createElement('div');
       hinweisElement.className = 'hinweis-preis';
       
       // Style the hinweis element
+      hinweisElement.style.display = 'block'; // Override display:none
       hinweisElement.style.color = '#666';
       hinweisElement.style.fontStyle = 'italic';
-      hinweisElement.style.fontSize = '0.9em';
+      hinweisElement.style.fontSize = '0.5em';
       hinweisElement.style.marginTop = '15px';
       hinweisElement.style.marginBottom = '15px';
       hinweisElement.style.padding = '10px';
