@@ -174,21 +174,35 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   // For seasonal operation, only include water costs (no additional costs)
   const gesamtSaisonal = wasserKostenSaisonal;
   
-  // Add note element to explain costs
-  const noteElement = document.createElement('div');
-  noteElement.className = 'cost-note';
-  noteElement.style.color = '#666';
-  noteElement.style.fontStyle = 'italic';
-  noteElement.style.fontSize = '0.9em';
-  noteElement.style.marginTop = '5px';
-  noteElement.innerHTML = 'Hinweis: Zusätzliche Kosten für die Beprobung, Hygienereinigung und andere betriebsbedingte Aufwendungen fallen weiterhin an und müssen separat berücksichtigt werden.';
-  
-  // Insert note after price elements
+  // Create or update the hinweis-preis element
   setTimeout(() => {
-    const priceContainer = document.getElementById('full-year-gesamt-price').closest('.inner_grid-calc-ergebnis');
-    if (priceContainer && !document.querySelector('.cost-note')) {
-      priceContainer.appendChild(noteElement);
+    let hinweisElement = document.querySelector('.hinweis-preis');
+    
+    // If the element doesn't exist, create it
+    if (!hinweisElement) {
+      hinweisElement = document.createElement('div');
+      hinweisElement.className = 'hinweis-preis';
+      
+      // Style the hinweis element
+      hinweisElement.style.color = '#666';
+      hinweisElement.style.fontStyle = 'italic';
+      hinweisElement.style.fontSize = '0.9em';
+      hinweisElement.style.marginTop = '15px';
+      hinweisElement.style.marginBottom = '15px';
+      hinweisElement.style.padding = '10px';
+      hinweisElement.style.backgroundColor = '#f8f8f8';
+      hinweisElement.style.borderLeft = '3px solid #4a90e2';
+      hinweisElement.style.borderRadius = '3px';
+      
+      // Add to the page
+      const priceContainer = document.getElementById('full-year-gesamt-price').closest('.inner_grid-calc-ergebnis');
+      if (priceContainer) {
+        priceContainer.appendChild(hinweisElement);
+      }
     }
+    
+    // Set the content
+    hinweisElement.innerHTML = 'Hinweis: Zusätzliche Kosten für die Beprobung fallen weiterhin an und müssen separat berücksichtigt werden.';
   }, 500);
   console.log("Total costs:", { gesamtJahr, gesamtSaisonal });
 
