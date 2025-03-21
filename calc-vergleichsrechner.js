@@ -388,21 +388,35 @@ function formatInputWithSeparators(input) {
 
 // Function to update right side value indicators
 function updateRightSideValue(input) {
-  const valueIndicator = input.nextElementSibling;
-  if (valueIndicator && valueIndicator.classList.contains('input-value-indicator')) {
-    let displayValue = input.value;
-    
-    // Add unit based on input ID
-    if (input.id === 'ml-pro-betaetigung') {
-      displayValue += ' ml';
-    } else if (input.id === 'benutzung-prozent') {
-      displayValue += ' %';
-    } else if (input.id === 'trinkwasserpreis' || input.id === 'entsorgung-preis') {
-      displayValue += ' €';
-    }
-    
-    valueIndicator.textContent = displayValue;
+  // First try to find the indicator in the wrapper-calc-rel
+  const wrapper = input.closest('.wrapper-calc-rel');
+  let valueIndicator = null;
+  
+  if (wrapper) {
+    valueIndicator = wrapper.querySelector('.input-value-indicator');
   }
+  
+  // If not found in wrapper, check if it's the next sibling
+  if (!valueIndicator) {
+    valueIndicator = input.nextElementSibling;
+    if (!valueIndicator || !valueIndicator.classList.contains('input-value-indicator')) {
+      return; // No indicator found
+    }
+  }
+  
+  // Update the indicator text
+  let displayValue = input.value;
+  
+  // Add unit based on input ID
+  if (input.id === 'ml-pro-betaetigung') {
+    displayValue += ' ml';
+  } else if (input.id === 'benutzung-prozent') {
+    displayValue += ' %';
+  } else if (input.id === 'trinkwasserpreis' || input.id === 'entsorgung-preis') {
+    displayValue += ' €';
+  }
+  
+  valueIndicator.textContent = displayValue;
 }
 
 // Add event listeners to numeric inputs that need thousand separators
@@ -447,13 +461,27 @@ document.addEventListener("DOMContentLoaded", function() {
         
         valueIndicator.textContent = defaultValue;
         
-        // Make the input's parent position relative if it's not already
-        if (input.parentElement.style.position !== 'relative') {
-          input.parentElement.style.position = 'relative';
-        }
+        // Find wrapper-calc-rel container
+        let wrapperCalcRel = input.closest('.wrapper-calc-rel');
         
-        // Insert the indicator after the input
-        input.parentElement.insertBefore(valueIndicator, input.nextSibling);
+        // If wrapper-calc-rel exists, add the indicator to it
+        if (wrapperCalcRel) {
+          // Make the wrapper position relative if it's not already
+          if (wrapperCalcRel.style.position !== 'relative') {
+            wrapperCalcRel.style.position = 'relative';
+          }
+          
+          // Insert the indicator into the wrapper
+          wrapperCalcRel.appendChild(valueIndicator);
+        } else {
+          // Fallback: Make the input's parent position relative and add indicator there
+          if (input.parentElement.style.position !== 'relative') {
+            input.parentElement.style.position = 'relative';
+          }
+          
+          // Insert the indicator after the input
+          input.parentElement.insertBefore(valueIndicator, input.nextSibling);
+        }
       }
       
       // Add input event listener to format with separators and update indicator
