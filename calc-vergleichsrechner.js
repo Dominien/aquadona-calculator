@@ -441,11 +441,13 @@ document.addEventListener("DOMContentLoaded", function() {
           const valueIndicator = document.createElement('div');
           valueIndicator.classList.add('input-value-indicator');
           
-          // Center the indicator in the wrapper
-          valueIndicator.style.textAlign = 'center';
+          // Position the indicator absolute right-center
+          valueIndicator.style.position = 'absolute';
+          valueIndicator.style.right = '10px';
+          valueIndicator.style.top = '50%';
+          valueIndicator.style.transform = 'translateY(-50%)';
           valueIndicator.style.color = '#999';
           valueIndicator.style.fontSize = '14px';
-          valueIndicator.style.margin = '10px 0';
           valueIndicator.style.pointerEvents = 'none'; // Make sure it doesn't interfere with input
           
           // Set default value for the first input
