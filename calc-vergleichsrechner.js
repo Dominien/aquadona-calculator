@@ -358,7 +358,7 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
 
 
 // ---------------------------------------------------------
-// 4) Format input fields with thousand separators
+// 4) Format input fields with thousand separators and add right-side value indicators
 // ---------------------------------------------------------
 function formatInputWithSeparators(input) {
   // Get the cursor position
@@ -381,16 +381,98 @@ function formatInputWithSeparators(input) {
     // Set the cursor position
     input.setSelectionRange(newPosition, newPosition);
   }
+  
+  // Update the right side value indicator if it exists
+  updateRightSideValue(input);
+}
+
+// Function to update right side value indicators
+function updateRightSideValue(input) {
+  const valueIndicator = input.nextElementSibling;
+  if (valueIndicator && valueIndicator.classList.contains('input-value-indicator')) {
+    let displayValue = input.value;
+    
+    // Add unit based on input ID
+    if (input.id === 'ml-pro-betaetigung') {
+      displayValue += ' ml';
+    } else if (input.id === 'benutzung-prozent') {
+      displayValue += ' %';
+    } else if (input.id === 'trinkwasserpreis' || input.id === 'entsorgung-preis') {
+      displayValue += ' €';
+    }
+    
+    valueIndicator.textContent = displayValue;
+  }
 }
 
 // Add event listeners to numeric inputs that need thousand separators
 document.addEventListener("DOMContentLoaded", function() {
-  const populationInput = document.getElementById('menschen-gesamt');
-  if (populationInput) {
-    populationInput.addEventListener('input', function() {
-      formatInputWithSeparators(this);
-    });
-  }
+  // List of all inputs that should be restricted to numbers
+  const numericInputs = [
+    'menschen-gesamt',
+    'ml-pro-betaetigung',
+    'trinkwasserpreis',
+    'entsorgung-preis',
+    'benutzung-prozent'
+  ];
+  
+  numericInputs.forEach(inputId => {
+    const input = document.getElementById(inputId);
+    if (input) {
+      // Create right side value indicator if it doesn't exist
+      if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('input-value-indicator')) {
+        const valueIndicator = document.createElement('div');
+        valueIndicator.classList.add('input-value-indicator');
+        valueIndicator.style.position = 'absolute';
+        valueIndicator.style.right = '10px';
+        valueIndicator.style.top = '50%';
+        valueIndicator.style.transform = 'translateY(-50%)';
+        valueIndicator.style.color = '#999';
+        valueIndicator.style.fontSize = '14px';
+        valueIndicator.style.pointerEvents = 'none'; // Make sure it doesn't interfere with input
+        
+        // Set default value based on input ID
+        let defaultValue = '';
+        if (inputId === 'ml-pro-betaetigung') {
+          defaultValue = DEFAULT_WATER_CONSUMPTION_ML + ' ml';
+        } else if (inputId === 'benutzung-prozent') {
+          defaultValue = DEFAULT_USAGE_PERCENT + ' %';
+        } else if (inputId === 'trinkwasserpreis') {
+          defaultValue = DEFAULT_WATER_PRICE + ' €';
+        } else if (inputId === 'entsorgung-preis') {
+          defaultValue = DEFAULT_WASTEWATER_PRICE + ' €';
+        } else if (inputId === 'menschen-gesamt') {
+          defaultValue = DEFAULT_POPULATION.toLocaleString('de-DE').replace(/,/g, '.');
+        }
+        
+        valueIndicator.textContent = defaultValue;
+        
+        // Make the input's parent position relative if it's not already
+        if (input.parentElement.style.position !== 'relative') {
+          input.parentElement.style.position = 'relative';
+        }
+        
+        // Insert the indicator after the input
+        input.parentElement.insertBefore(valueIndicator, input.nextSibling);
+      }
+      
+      // Add input event listener to format with separators and update indicator
+      input.addEventListener('input', function(e) {
+        // Enforce numeric input (allow digits, commas, periods, and backspace)
+        this.value = this.value.replace(/[^\d.,]/g, '');
+        
+        // Apply thousand separators for population input
+        if (inputId === 'menschen-gesamt') {
+          formatInputWithSeparators(this);
+        } else {
+          updateRightSideValue(this);
+        }
+      });
+      
+      // Initialize the indicator value
+      updateRightSideValue(input);
+    }
+  });
 });
 
 // ---------------------------------------------------------
@@ -402,10 +484,21 @@ document.addEventListener("DOMContentLoaded", function () {
     const sliderMaxValue = 100; // Maximum percentage value
     
     // Set default values
-    document.getElementById('ml-pro-betaetigung').value = DEFAULT_WATER_CONSUMPTION_ML;
-    document.getElementById('trinkwasserpreis').value = DEFAULT_WATER_PRICE.toString().replace('.', ',');
-    document.getElementById('entsorgung-preis').value = DEFAULT_WASTEWATER_PRICE.toString().replace('.', ',');
-    document.getElementById('menschen-gesamt').value = DEFAULT_POPULATION.toLocaleString('de-DE').replace(/,/g, '.');
+    const mlInput = document.getElementById('ml-pro-betaetigung');
+    const trinkwasserInput = document.getElementById('trinkwasserpreis');
+    const entsorgungInput = document.getElementById('entsorgung-preis');
+    const menschenInput = document.getElementById('menschen-gesamt');
+    
+    mlInput.value = DEFAULT_WATER_CONSUMPTION_ML;
+    trinkwasserInput.value = DEFAULT_WATER_PRICE.toString().replace('.', ',');
+    entsorgungInput.value = DEFAULT_WASTEWATER_PRICE.toString().replace('.', ',');
+    menschenInput.value = DEFAULT_POPULATION.toLocaleString('de-DE').replace(/,/g, '.');
+    
+    // Ensure the inputs only accept numeric values
+    const numericInputs = [mlInput, trinkwasserInput, entsorgungInput, menschenInput];
+    numericInputs.forEach(input => {
+        input.setAttribute('inputmode', 'numeric'); // Show numeric keyboard on mobile
+    });
     
     // Set default range slider value
     const rangeHandle = document.querySelector('[fs-rangeslider-element="handle"]');
@@ -470,15 +563,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // Function to set the input value based on the slider handle text
     function setInputValue() {
         const handleText = document.querySelector(`.${rangeSliderWrapperClass} .inside-handle-text`).textContent;
-        document.getElementById(inputId).value = handleText;
+        const inputElement = document.getElementById(inputId);
+        inputElement.value = handleText;
+        
+        // Update the right-side value indicator
+        updateRightSideValue(inputElement);
     }
 
     // Function to set the slider handle text based on the input value
     function setHandleText() {
-        const inputValue = document.getElementById(inputId).value;
+        const inputElement = document.getElementById(inputId);
+        const inputValue = inputElement.value;
         const handleText = document.querySelector(`.${rangeSliderWrapperClass} .inside-handle-text`);
         handleText.textContent = inputValue;
         updateRangeSliderPosition(inputValue, true);
+        
+        // Update the right-side value indicator
+        updateRightSideValue(inputElement);
     }
 
     // Function to add event listeners for handle movement
@@ -555,15 +656,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const observer = new MutationObserver(() => {
             if (inputElement.value !== handleTextElement.textContent) {
                 inputElement.value = handleTextElement.textContent;
+                // Update the right-side value indicator
+                updateRightSideValue(inputElement);
             }
         });
 
         observer.observe(handleTextElement, { childList: true, subtree: true });
 
         inputElement.addEventListener("input", () => {
+            // Only allow numeric input
+            inputElement.value = inputElement.value.replace(/[^\d]/g, '');
+            
+            // Limit to 3 digits (0-100)
+            if (parseInt(inputElement.value) > 100) {
+                inputElement.value = '100';
+            }
+            
             if (inputElement.value !== handleTextElement.textContent) {
                 handleTextElement.textContent = inputElement.value;
                 updateRangeSliderPosition(inputElement.value, true);
+                // Update the right-side value indicator
+                updateRightSideValue(inputElement);
             }
         });
     }
