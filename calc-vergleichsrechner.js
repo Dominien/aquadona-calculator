@@ -23,8 +23,14 @@ const CO2_WATER_PER_LITER = 0.35;     // 0.35g CO₂ per liter (water)
 function parseNumber(value) {
   console.log(`Parsing value: ${value}`);
   let sanitized = value
-    .replace(/[^\d.,\-+]/g, '')
-    .replace(',', '.');
+    .replace(/[^\d.,\-+]/g, '');
+    
+  // Handle both comma and period as decimal separators
+  // If there's a comma, use it as the decimal separator
+  if (sanitized.includes(',')) {
+    sanitized = sanitized.replace(',', '.');
+  }
+  
   const result = parseFloat(sanitized) || 0;
   console.log(`Parsed result: ${result}`);
   return result;
@@ -357,8 +363,8 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Set default values
     document.getElementById('ml-pro-betaetigung').value = DEFAULT_WATER_CONSUMPTION_ML;
-    document.getElementById('trinkwasserpreis').value = DEFAULT_WATER_PRICE;
-    document.getElementById('entsorgung-preis').value = DEFAULT_WASTEWATER_PRICE;
+    document.getElementById('trinkwasserpreis').value = DEFAULT_WATER_PRICE.toString().replace('.', ',');
+    document.getElementById('entsorgung-preis').value = DEFAULT_WASTEWATER_PRICE.toString().replace('.', ',');
     document.getElementById('menschen-gesamt').value = DEFAULT_POPULATION.toLocaleString('de-DE');
     
     // Set default range slider value
