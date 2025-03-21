@@ -412,19 +412,17 @@ function updateRightSideValue(input) {
     wrapper.appendChild(valueIndicator);
   }
   
-  // Update the indicator text
-  let displayValue = input.value;
-  
-  // Add unit based on input ID
+  // Show only the unit based on input ID
+  let unitText = '';
   if (input.id === 'ml-pro-betaetigung') {
-    displayValue += ' ml';
+    unitText = 'ml';
   } else if (input.id === 'benutzung-prozent') {
-    displayValue += ' %';
+    unitText = '%';
   } else if (input.id === 'trinkwasserpreis' || input.id === 'entsorgung-preis') {
-    displayValue += ' €';
+    unitText = '€';
   }
   
-  valueIndicator.textContent = displayValue;
+  valueIndicator.textContent = unitText;
 }
 
 // Add event listeners to numeric inputs that need thousand separators
@@ -459,21 +457,17 @@ document.addEventListener("DOMContentLoaded", function() {
         valueIndicator.style.fontSize = '14px';
         valueIndicator.style.pointerEvents = 'none'; // Make sure it doesn't interfere with input
         
-        // Set default value based on input ID
-        let defaultValue = '';
-        if (inputId === 'menschen-gesamt') {
-          defaultValue = DEFAULT_POPULATION.toLocaleString('de-DE').replace(/,/g, '.');
-        } else if (inputId === 'ml-pro-betaetigung') {
-          defaultValue = DEFAULT_WATER_CONSUMPTION_ML + ' ml';
+        // Set unit based on input ID
+        let unitText = '';
+        if (inputId === 'ml-pro-betaetigung') {
+          unitText = 'ml';
         } else if (inputId === 'benutzung-prozent') {
-          defaultValue = DEFAULT_USAGE_PERCENT + ' %';
-        } else if (inputId === 'trinkwasserpreis') {
-          defaultValue = DEFAULT_WATER_PRICE + ' €';
-        } else if (inputId === 'entsorgung-preis') {
-          defaultValue = DEFAULT_WASTEWATER_PRICE + ' €';
+          unitText = '%';
+        } else if (inputId === 'trinkwasserpreis' || inputId === 'entsorgung-preis') {
+          unitText = '€';
         }
         
-        valueIndicator.textContent = defaultValue;
+        valueIndicator.textContent = unitText;
         
         // Make the wrapper relative positioning
         wrapperCalcRel.style.position = 'relative';
