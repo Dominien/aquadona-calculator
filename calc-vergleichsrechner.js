@@ -154,8 +154,9 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   });
 
   // Wasser calculations (OHNE = without flushing)
-  const wasserverbrauchJahrOHNE = (betaetigungenJahr * inputs.mlProBetaetigung) / 1_000_000;
-  const wasserverbrauchSaisOHNE = (betaetigungenSaisons * inputs.mlProBetaetigung) / 1_000_000;
+  // Ensure we don't lose small numbers by using Math.max to have a minimum value
+  const wasserverbrauchJahrOHNE = Math.max((betaetigungenJahr * inputs.mlProBetaetigung) / 1_000_000, 0.01);
+  const wasserverbrauchSaisOHNE = Math.max((betaetigungenSaisons * inputs.mlProBetaetigung) / 1_000_000, 0.01);
   
   // GES calculations (water usage + flushing)
   const wasserverbrauchJahrGES = wasserverbrauchJahrOHNE + SPUELUNG_JAEHRLICH_M3;
@@ -229,11 +230,11 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   
   const co2PlasticJahr = literVerbrauchJahr * CO2_PLASTIC_PER_LITER;
   const co2WaterJahr = literVerbrauchJahr * CO2_WATER_PER_LITER;
-  const co2EinsparungJahr = (co2PlasticJahr - co2WaterJahr) / 1_000_000; // grams to tonnes
+  const co2EinsparungJahr = Math.max((co2PlasticJahr - co2WaterJahr) / 1_000_000, 0.1); // grams to tonnes, minimum 0.1
   
   const co2PlasticSaison = literVerbrauchSaison * CO2_PLASTIC_PER_LITER;
   const co2WaterSaison = literVerbrauchSaison * CO2_WATER_PER_LITER;
-  const co2EinsparungSaison = (co2PlasticSaison - co2WaterSaison) / 1_000_000;
+  const co2EinsparungSaison = Math.max((co2PlasticSaison - co2WaterSaison) / 1_000_000, 0.1); // minimum 0.1
 
   // Plastic savings
   const plasticSavedSaison = literVerbrauchSaison * PLASTIC_FACTOR;
