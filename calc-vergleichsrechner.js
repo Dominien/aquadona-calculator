@@ -358,7 +358,43 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
 
 
 // ---------------------------------------------------------
-// 4) Slider functionality (unchanged)
+// 4) Format input fields with thousand separators
+// ---------------------------------------------------------
+function formatInputWithSeparators(input) {
+  // Get the cursor position
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  
+  // Get the raw value without separators
+  let value = input.value.replace(/\./g, '');
+  
+  // Only format if we have a valid number
+  if (value && /^\d+$/.test(value)) {
+    // Format with dots as thousand separators
+    const formattedValue = value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    input.value = formattedValue;
+    
+    // Calculate new cursor position
+    const addedSeparators = formattedValue.length - value.length;
+    const newPosition = start + (addedSeparators > 0 ? 1 : 0);
+    
+    // Set the cursor position
+    input.setSelectionRange(newPosition, newPosition);
+  }
+}
+
+// Add event listeners to numeric inputs that need thousand separators
+document.addEventListener("DOMContentLoaded", function() {
+  const populationInput = document.getElementById('menschen-gesamt');
+  if (populationInput) {
+    populationInput.addEventListener('input', function() {
+      formatInputWithSeparators(this);
+    });
+  }
+});
+
+// ---------------------------------------------------------
+// 5) Slider functionality (unchanged)
 // ---------------------------------------------------------
 document.addEventListener("DOMContentLoaded", function () {
     const rangeSliderWrapperClass = "wrapper-step-range_slider"; // Class for the slider wrapper
@@ -369,7 +405,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('ml-pro-betaetigung').value = DEFAULT_WATER_CONSUMPTION_ML;
     document.getElementById('trinkwasserpreis').value = DEFAULT_WATER_PRICE.toString().replace('.', ',');
     document.getElementById('entsorgung-preis').value = DEFAULT_WASTEWATER_PRICE.toString().replace('.', ',');
-    document.getElementById('menschen-gesamt').value = DEFAULT_POPULATION.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.').replace(/\./g, ',');
+    document.getElementById('menschen-gesamt').value = DEFAULT_POPULATION.toLocaleString('de-DE').replace(/,/g, '.');
     
     // Set default range slider value
     const rangeHandle = document.querySelector('[fs-rangeslider-element="handle"]');
