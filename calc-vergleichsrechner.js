@@ -388,29 +388,39 @@ function formatInputWithSeparators(input) {
 
 // Function to update right side value indicators
 function updateRightSideValue(input) {
-  // Get focused input ID
-  const activeInputId = document.activeElement ? document.activeElement.id : null;
-  
-  // Find the wrapper-calc-rel element
-  const wrapper = document.querySelector('.wrapper-calc-rel');
+  // Find the wrapper-calc-rel that contains this input
+  const wrapper = input.closest('.wrapper-calc-rel');
   if (!wrapper) return;
   
-  // Find the indicator inside the wrapper-calc-rel
-  const valueIndicator = wrapper.querySelector('.input-value-indicator');
-  if (!valueIndicator) return;
+  // Find or create the indicator inside this wrapper
+  let valueIndicator = wrapper.querySelector('.input-value-indicator');
   
-  // Get the current active input or use the provided input
-  const activeInput = (activeInputId && document.getElementById(activeInputId)) || input;
+  if (!valueIndicator) {
+    // Create indicator if it doesn't exist
+    valueIndicator = document.createElement('div');
+    valueIndicator.classList.add('input-value-indicator');
+    valueIndicator.style.position = 'absolute';
+    valueIndicator.style.right = '10px';
+    valueIndicator.style.top = '50%';
+    valueIndicator.style.transform = 'translateY(-50%)';
+    valueIndicator.style.color = '#999';
+    valueIndicator.style.fontSize = '14px';
+    valueIndicator.style.pointerEvents = 'none';
+    
+    // Add the indicator to this specific wrapper
+    wrapper.style.position = 'relative';
+    wrapper.appendChild(valueIndicator);
+  }
   
   // Update the indicator text
-  let displayValue = activeInput.value;
+  let displayValue = input.value;
   
   // Add unit based on input ID
-  if (activeInput.id === 'ml-pro-betaetigung') {
+  if (input.id === 'ml-pro-betaetigung') {
     displayValue += ' ml';
-  } else if (activeInput.id === 'benutzung-prozent') {
+  } else if (input.id === 'benutzung-prozent') {
     displayValue += ' %';
-  } else if (activeInput.id === 'trinkwasserpreis' || activeInput.id === 'entsorgung-preis') {
+  } else if (input.id === 'trinkwasserpreis' || input.id === 'entsorgung-preis') {
     displayValue += ' €';
   }
   
@@ -431,44 +441,45 @@ document.addEventListener("DOMContentLoaded", function() {
   numericInputs.forEach(inputId => {
     const input = document.getElementById(inputId);
     if (input) {
-      // Only create the indicator once, and only for the first input
-      if (inputId === numericInputs[0]) {
-        // Find wrapper-calc-rel container
-        const wrapperCalcRel = document.querySelector('.wrapper-calc-rel');
+      // For each input, create its own indicator
+      // Find wrapper-calc-rel container for this input
+      const wrapperCalcRel = input.closest('.wrapper-calc-rel');
+      
+      // Only proceed if the wrapper exists and doesn't already have an indicator
+      if (wrapperCalcRel && !wrapperCalcRel.querySelector('.input-value-indicator')) {
+        const valueIndicator = document.createElement('div');
+        valueIndicator.classList.add('input-value-indicator');
         
-        // Only proceed if the wrapper exists and doesn't already have an indicator
-        if (wrapperCalcRel && !wrapperCalcRel.querySelector('.input-value-indicator')) {
-          const valueIndicator = document.createElement('div');
-          valueIndicator.classList.add('input-value-indicator');
-          
-          // Position the indicator absolute right-center
-          valueIndicator.style.position = 'absolute';
-          valueIndicator.style.right = '10px';
-          valueIndicator.style.top = '50%';
-          valueIndicator.style.transform = 'translateY(-50%)';
-          valueIndicator.style.color = '#999';
-          valueIndicator.style.fontSize = '14px';
-          valueIndicator.style.pointerEvents = 'none'; // Make sure it doesn't interfere with input
-          
-          // Set default value for the first input
-          let defaultValue = '';
-          if (inputId === 'menschen-gesamt') {
-            defaultValue = DEFAULT_POPULATION.toLocaleString('de-DE').replace(/,/g, '.');
-          } else if (inputId === 'ml-pro-betaetigung') {
-            defaultValue = DEFAULT_WATER_CONSUMPTION_ML + ' ml';
-          } else if (inputId === 'benutzung-prozent') {
-            defaultValue = DEFAULT_USAGE_PERCENT + ' %';
-          } else if (inputId === 'trinkwasserpreis') {
-            defaultValue = DEFAULT_WATER_PRICE + ' €';
-          } else if (inputId === 'entsorgung-preis') {
-            defaultValue = DEFAULT_WASTEWATER_PRICE + ' €';
-          }
-          
-          valueIndicator.textContent = defaultValue;
-          
-          // Add the indicator to the wrapper
-          wrapperCalcRel.appendChild(valueIndicator);
+        // Position the indicator absolute right-center
+        valueIndicator.style.position = 'absolute';
+        valueIndicator.style.right = '10px';
+        valueIndicator.style.top = '50%';
+        valueIndicator.style.transform = 'translateY(-50%)';
+        valueIndicator.style.color = '#999';
+        valueIndicator.style.fontSize = '14px';
+        valueIndicator.style.pointerEvents = 'none'; // Make sure it doesn't interfere with input
+        
+        // Set default value based on input ID
+        let defaultValue = '';
+        if (inputId === 'menschen-gesamt') {
+          defaultValue = DEFAULT_POPULATION.toLocaleString('de-DE').replace(/,/g, '.');
+        } else if (inputId === 'ml-pro-betaetigung') {
+          defaultValue = DEFAULT_WATER_CONSUMPTION_ML + ' ml';
+        } else if (inputId === 'benutzung-prozent') {
+          defaultValue = DEFAULT_USAGE_PERCENT + ' %';
+        } else if (inputId === 'trinkwasserpreis') {
+          defaultValue = DEFAULT_WATER_PRICE + ' €';
+        } else if (inputId === 'entsorgung-preis') {
+          defaultValue = DEFAULT_WASTEWATER_PRICE + ' €';
         }
+        
+        valueIndicator.textContent = defaultValue;
+        
+        // Make the wrapper relative positioning
+        wrapperCalcRel.style.position = 'relative';
+        
+        // Add the indicator to the wrapper
+        wrapperCalcRel.appendChild(valueIndicator);
       }
       
       // Add input event listener to format with separators and update indicator
@@ -586,7 +597,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const inputElement = document.getElementById(inputId);
         inputElement.value = handleText;
         
-        // Update the right-side value indicator
+        // Update the right-side value indicator for this specific input
         updateRightSideValue(inputElement);
     }
 
@@ -598,7 +609,7 @@ document.addEventListener("DOMContentLoaded", function () {
         handleText.textContent = inputValue;
         updateRangeSliderPosition(inputValue, true);
         
-        // Update the right-side value indicator
+        // Update the right-side value indicator for this specific input
         updateRightSideValue(inputElement);
     }
 
@@ -676,7 +687,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const observer = new MutationObserver(() => {
             if (inputElement.value !== handleTextElement.textContent) {
                 inputElement.value = handleTextElement.textContent;
-                // Update the right-side value indicator
+                // Update the right-side value indicator for this specific input
                 updateRightSideValue(inputElement);
             }
         });
@@ -695,7 +706,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (inputElement.value !== handleTextElement.textContent) {
                 handleTextElement.textContent = inputElement.value;
                 updateRangeSliderPosition(inputElement.value, true);
-                // Update the right-side value indicator
+                // Update the right-side value indicator for this specific input
                 updateRightSideValue(inputElement);
             }
         });
