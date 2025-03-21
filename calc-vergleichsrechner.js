@@ -224,9 +224,9 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   }, 500);
   console.log("Total costs:", { gesamtJahr, gesamtSaisonal });
 
-  // Environmental calculations
-  const literVerbrauchJahr = wasserverbrauchJahrOHNE * 1000;
-  const literVerbrauchSaison = wasserverbrauchSaisOHNE * 1000;
+  // Environmental calculations - Including flushing water
+  const literVerbrauchJahr = wasserverbrauchJahrGES * 1000; // Include flushing water
+  const literVerbrauchSaison = wasserverbrauchSaisonGES * 1000; // Include flushing water
   
   const co2PlasticJahr = literVerbrauchJahr * CO2_PLASTIC_PER_LITER;
   const co2WaterJahr = literVerbrauchJahr * CO2_WATER_PER_LITER;
@@ -266,11 +266,11 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   document.getElementById('plastic-bootles-saison').textContent = formatPlasticBottles(plasticSavedSaison);
   document.getElementById('plastic-bootles-gesamt').textContent = formatPlasticBottles(plasticSavedJahr);
   
-  // 4) Water consumption
+  // 4) Water consumption (total including flushing)
   document.getElementById('liter-verbrauch-saison').textContent = formatNumber(literVerbrauchSaison);
   document.getElementById('liter-verbrauch-full').textContent = formatNumber(literVerbrauchJahr);
-  document.getElementById('m3-verbrauch-saison').textContent = formatNumber(wasserverbrauchSaisOHNE);
-  document.getElementById('m3-verbrauch-full').textContent = formatNumber(wasserverbrauchJahrOHNE);
+  document.getElementById('m3-verbrauch-saison').textContent = formatNumber(wasserverbrauchSaisonGES);
+  document.getElementById('m3-verbrauch-full').textContent = formatNumber(wasserverbrauchJahrGES);
   
   // 5) Additional flushing consumption
   document.getElementById('m3-spuelung-saison').textContent = formatNumber(SPUELUNG_SAISONAL_M3);
@@ -302,10 +302,10 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
       saisonSliderId: 'liter-verbrauch-saison-range', 
       fullYearSliderId: 'liter-verbrauch-full-range' 
     },
-    // m³ consumption sliders (without flushing)
+    // m³ consumption sliders (with flushing)
     { 
-      saison: wasserverbrauchSaisOHNE, 
-      fullYear: wasserverbrauchJahrOHNE, 
+      saison: wasserverbrauchSaisonGES, 
+      fullYear: wasserverbrauchJahrGES, 
       saisonSliderId: 'm3-verbrauch-full-range-saison', 
       fullYearSliderId: 'm3-verbrauch-full-range-gesamt' 
     },
