@@ -29,10 +29,11 @@ function parseNumber(value) {
   
   // First remove all non-numeric characters except decimal separators, minus and plus signs
   let sanitized = value.replace(/[^\d.,\-+]/g, '');
-    
-  // Handle both comma and period as decimal separators
-  // Replace all commas with periods for proper parsing
-  sanitized = sanitized.replace(/,/g, '.');
+  
+  // For German number format: 
+  // 1. Remove all dots (thousand separators)
+  // 2. Replace comma with dot (for decimal point)
+  sanitized = sanitized.replace(/\./g, '').replace(/,/g, '.');
   
   const result = parseFloat(sanitized) || 0;
   console.log(`Parsed result: ${result}`);
