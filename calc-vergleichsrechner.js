@@ -268,8 +268,9 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   document.getElementById('plastic-bootles-gesamt').textContent = formatPlasticBottles(plasticSavedJahr);
   
   // 4) Water consumption (total including flushing)
-  document.getElementById('liter-verbrauch-saison').textContent = formatNumber(literVerbrauchSaison);
-  document.getElementById('liter-verbrauch-full').textContent = formatNumber(literVerbrauchJahr);
+  // The liter-verbrauch elements have been removed from the HTML
+  // document.getElementById('liter-verbrauch-saison').textContent = formatNumber(literVerbrauchSaison);
+  // document.getElementById('liter-verbrauch-full').textContent = formatNumber(literVerbrauchJahr);
   document.getElementById('m3-verbrauch-saison').textContent = formatNumber(wasserverbrauchSaisonGES);
   document.getElementById('m3-verbrauch-full').textContent = formatNumber(wasserverbrauchJahrGES);
   
@@ -295,13 +296,6 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
       fullYear: co2EinsparungJahr, 
       saisonSliderId: 'saison-tonnen-c02-range', 
       fullYearSliderId: 'full-tonnen-c02-range' 
-    },
-    // Liter consumption sliders
-    { 
-      saison: literVerbrauchSaison, 
-      fullYear: literVerbrauchJahr, 
-      saisonSliderId: 'liter-verbrauch-saison-range', 
-      fullYearSliderId: 'liter-verbrauch-full-range' 
     },
     // m³ consumption sliders (with flushing)
     { 
@@ -342,12 +336,14 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
       saisonSlider.style.transition = 'width 0.8s ease-in-out'; // smooth animation
       void saisonSlider.offsetWidth; // reflow to reset
       saisonSlider.style.width = `${saisonPercentage}%`;
+      saisonSlider.style.backgroundColor = '#4a90e2'; // Add color for saison
     }  
 
     if (fullYearSlider) {
       fullYearSlider.style.transition = 'width 0.8s ease-in-out';
       void fullYearSlider.offsetWidth;
       fullYearSlider.style.width = `${fullYearPercentage}%`;
+      fullYearSlider.style.backgroundColor = '#EB5757'; // Add color for full year
     }
 
     if (!saisonSlider) console.error(`Slider not found: ${pair.saisonSliderId}`);
