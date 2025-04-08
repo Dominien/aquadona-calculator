@@ -81,11 +81,11 @@ function formatNumber(val) {
 }
 
 function formatPlasticBottles(val) {
-  // Remove any decimal places and format without commas
+  // Format with thousand separators (dots in German format)
   return val.toLocaleString('de-DE', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).replace(/\./g, ''); // Remove thousand separators for plastic bottles
+  }); // Keep thousand separators for plastic bottles
 }
 
 // ---------------------------------------------------------
