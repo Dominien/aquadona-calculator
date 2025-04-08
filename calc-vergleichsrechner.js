@@ -1,3 +1,20 @@
+// Add CSS for bar colors
+document.addEventListener("DOMContentLoaded", function() {
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+    /* Saison colors */
+    .saison_gesamt, .co2-saison, .m3-saison, .spuelung-saison, .plastic-saison {
+      background-color: #4a90e2 !important;
+    }
+    
+    /* Year colors */
+    .year_gesamt, .co2-year, .m3-year, .spuelung-year, .plastic-year {
+      background-color: #EB5757 !important;
+    }
+  `;
+  document.head.appendChild(styleElement);
+});
+
 // ---------------------------------------------------------
 // 1) Constants & helper functions
 // ---------------------------------------------------------
@@ -271,12 +288,21 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   // The liter-verbrauch elements have been removed from the HTML
   // document.getElementById('liter-verbrauch-saison').textContent = formatNumber(literVerbrauchSaison);
   // document.getElementById('liter-verbrauch-full').textContent = formatNumber(literVerbrauchJahr);
-  document.getElementById('m3-verbrauch-saison').textContent = formatNumber(wasserverbrauchSaisonGES);
-  document.getElementById('m3-verbrauch-full').textContent = formatNumber(wasserverbrauchJahrGES);
+  
+  // Format with 3 decimal places for m³
+  function formatM3(val) {
+    return val.toLocaleString('de-DE', {
+      minimumFractionDigits: 3,
+      maximumFractionDigits: 3
+    });
+  }
+  
+  document.getElementById('m3-verbrauch-saison').textContent = formatM3(wasserverbrauchSaisonGES);
+  document.getElementById('m3-verbrauch-full').textContent = formatM3(wasserverbrauchJahrGES);
   
   // 5) Additional flushing consumption
-  document.getElementById('m3-spuelung-saison').textContent = formatNumber(SPUELUNG_SAISONAL_M3);
-  document.getElementById('m3-spuelung-gesamt').textContent = formatNumber(SPUELUNG_JAEHRLICH_M3);
+  document.getElementById('m3-spuelung-saison').textContent = formatM3(SPUELUNG_SAISONAL_M3);
+  document.getElementById('m3-spuelung-gesamt').textContent = formatM3(SPUELUNG_JAEHRLICH_M3);
 
   // ---------------------------------------------------------
   // Update sliders (visual bars) for comparison
@@ -321,6 +347,15 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
   ];
 
   sliderPairs.forEach(pair => {
+    // Skip if the slider IDs don't exist in the DOM
+    const saisonSlider = document.getElementById(pair.saisonSliderId);
+    const fullYearSlider = document.getElementById(pair.fullYearSliderId);
+    
+    if (!saisonSlider || !fullYearSlider) {
+      console.log(`Skipping slider pair: ${pair.saisonSliderId} / ${pair.fullYearSliderId} - not found in DOM`);
+      return;
+    }
+    
     const max = Math.max(pair.saison, pair.fullYear, 1);
     const saisonPercentage = (pair.saison / max) * 100;
     const fullYearPercentage = (pair.fullYear / max) * 100;
@@ -329,25 +364,19 @@ document.getElementById('calc-all').addEventListener('click', function (e) {
     console.log(`Values: Saison=${pair.saison}, FullYear=${pair.fullYear}, Max=${max}`);
     console.log(`Percentages: Saison=${saisonPercentage}%, FullYear=${fullYearPercentage}%`);
 
-    const saisonSlider = document.getElementById(pair.saisonSliderId);
-    const fullYearSlider = document.getElementById(pair.fullYearSliderId);
-
     if (saisonSlider) {
       saisonSlider.style.transition = 'width 0.8s ease-in-out'; // smooth animation
       void saisonSlider.offsetWidth; // reflow to reset
       saisonSlider.style.width = `${saisonPercentage}%`;
-      saisonSlider.style.backgroundColor = '#4a90e2'; // Add color for saison
     }  
 
     if (fullYearSlider) {
       fullYearSlider.style.transition = 'width 0.8s ease-in-out';
       void fullYearSlider.offsetWidth;
       fullYearSlider.style.width = `${fullYearPercentage}%`;
-      fullYearSlider.style.backgroundColor = '#EB5757'; // Add color for full year
     }
 
-    if (!saisonSlider) console.error(`Slider not found: ${pair.saisonSliderId}`);
-    if (!fullYearSlider) console.error(`Slider not found: ${pair.fullYearSliderId}`);
+    // Error logging already done with our skip check above
   });
 
   console.log("--- Calculation complete ---\n");
